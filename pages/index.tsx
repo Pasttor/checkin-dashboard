@@ -74,15 +74,7 @@ export default function HomePage() {
             onChange={e => setSearch(e.target.value)}
             onKeyUp={e => e.key === 'Enter' && fetchAttendees()}
           />
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="absolute right-4 top-1/2 h-5 w-5 text-gray-400 -translate-y-1/2"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+   
         </div>
 
         {/* Lista de asistentes */}
