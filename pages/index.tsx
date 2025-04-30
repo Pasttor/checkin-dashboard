@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ScanModal } from '@/components/ScanModal';
+import { ScanModal } from '../components/ScanModal';
+import styles from '../styles/Home.module.css';
 
 interface Attendee {
   id: string;
@@ -15,10 +16,10 @@ export default function HomePage() {
 
   // Estados
   const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [search, setSearch] = useState('');
-  const [isScanning, setIsScanning] = useState(false);
+  const [search, setSearch] = useState<string>('');
+  const [isScanning, setIsScanning] = useState<boolean>(false);
 
-  // Carga de asistentes
+  // Función para cargar la lista de asistentes
   const fetchAttendees = async () => {
     try {
       const res = await fetch(`/api/attendees?search=${encodeURIComponent(search)}`);
@@ -29,11 +30,12 @@ export default function HomePage() {
     }
   };
 
+  // Al montar, traemos los asistentes
   useEffect(() => {
     fetchAttendees();
   }, []);
 
-  // Manejo del escaneo
+  // Manejar el resultado del escaneo
   const handleScan = async (code: string) => {
     const id = code.split('/').pop()!;
     try {
@@ -53,26 +55,35 @@ export default function HomePage() {
   console.log('isScanning:', isScanning);
 
   return (
-
-
-    
     <>
-     <div className="bg-red-500 text-white p-4">¡Tailwind funciona!</div>
+      {/* DEBUG: mostrar valor de isScanning */}
+      <div className={styles.debug}>isScanning: {String(isScanning)}</div>
 
+      {/* Overlay de prueba (se puede borrar luego) */}
+      {isScanning && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(59,130,246,0.3)', // azul semitransparente
+            zIndex: 40,
+          }}
+        />
+      )}
 
-      <main className="bg-white h-screen flex flex-col">
+      <main className={styles.container}>
         {/* Header */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-          <h1 className="text-lg font-bold uppercase text-gray-800">Nombre del Evento</h1>
+        <header className={styles.header}>
+          <h1 className={styles.title}>Nombre del Evento</h1>
           <button
             onClick={() => setIsScanning(true)}
-            className="p-2 rounded hover:bg-gray-100"
+            className={styles.scanButton}
             aria-label="Escanear QR"
           >
-            {/* Icono de escaneo */}
+            {/* SVG icono de QR */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-gray-800"
+              className="h-6 w-6"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -88,56 +99,59 @@ export default function HomePage() {
         </header>
 
         {/* Search */}
-        <div className="px-4 py-2 border-b border-gray-200 relative">
-  <input
-    type="text"
-    placeholder="Buscar asistentes..."
-    className="w-full pr-10 text-gray-700 placeholder-gray-400 focus:outline-none"
-    value={search}
-    onChange={e => setSearch(e.target.value)}
-    onKeyUp={e => e.key === 'Enter' && fetchAttendees()}
-  />
-
-  {/* Contenedor pequeño para el icono, sin bloquear clicks */}
-  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none">
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="h-5 w-5 text-gray-400"
-      fill="none"
-      viewBox="0 0 24 24"
-      stroke="currentColor"
-    >
-      <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  </div>
-</div>
+        <div className={styles.searchWrapper}>
+          <input
+            type="text"
+            placeholder="Buscar asistentes..."
+            className={styles.searchInput}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyUp={e => {
+              if (e.key === 'Enter') fetchAttendees();
+            }}
+          />
+          <div className={styles.iconWrapper}>
+            {/* SVG lupa */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+              />
+            </svg>
+          </div>
+        </div>
 
         {/* Lista de asistentes */}
-        <ul className="flex-1 overflow-auto">
+        <ul className={styles.list}>
           {attendees.length === 0 && (
-            <li className="px-4 py-3 text-center text-gray-500">
+            <li style={{ textAlign: 'center', color: '#6B7280', padding: '0.75rem 1rem' }}>
               No hay asistentes registrados.
             </li>
           )}
           {attendees.map(a => (
-            <li
-              key={a.id}
-              className="flex items-center justify-between px-4 py-3 border-b border-gray-200"
-            >
-              <div className="flex items-center">
+            <li key={a.id} className={styles.item}>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
                 <span
-                  className={`h-2 w-2 rounded-full mr-3 ${
-                    a.checked_in ? 'bg-blue-500' : 'bg-gray-400'
+                  className={`${styles.dot} ${
+                    a.checked_in ? styles.checked : styles.unchecked
                   }`}
                 />
-                <span className="text-gray-900">{a.name}</span>
+                <span className={styles.name}>{a.name}</span>
               </div>
               <button
                 onClick={() => router.push(`/attendees/${a.id}`)}
-                className="text-gray-400 hover:text-gray-600"
+                className={styles.arrowButton}
                 aria-label="Ver detalle"
               >
-                {/* Flecha → */}
+                {/* SVG flecha → */}
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   className="h-5 w-5"
@@ -159,15 +173,7 @@ export default function HomePage() {
       </main>
 
       {/* Modal de escaneo full-screen */}
-      {isScanning && (
-        <div className="fixed inset-0 bg-blue-500 bg-opacity-30 z-40" />
-        //<ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
-      )}
-
-      {/* DEBUG fallback en pantalla */}
-      <div className="fixed bottom-4 right-4 bg-white p-2 rounded shadow z-50 text-sm">
-        isScanning: {String(isScanning)}
-      </div>
+      {isScanning && <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />}
     </>
   );
 }
