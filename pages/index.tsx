@@ -154,7 +154,8 @@ export default function HomePage() {
 
       {/* Modal de escaneo full-screen */}
       {isScanning && (
-        <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
+        <div className="fixed inset-0 bg-blue-500 bg-opacity-30 z-40" />
+        //<ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
       )}
 
       {/* DEBUG fallback en pantalla */}

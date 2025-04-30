@@ -8,9 +8,12 @@ interface ScanModalProps {
 }
 
 export function ScanModal({ onClose, onScan }: ScanModalProps) {
+
+    console.log('🔴 ScanModal render'); 
+
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-80 z-50 flex flex-col"
+      className="fixed inset-0 bg-red-500 bg-opacity-50 z-50 flex flex-col"
     >
       {/* Botón cerrar */}
       <button
