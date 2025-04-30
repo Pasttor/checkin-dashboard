@@ -49,6 +49,9 @@ export default function HomePage() {
     }
   };
 
+  // DEBUG en consola
+  console.log('isScanning:', isScanning);
+
   return (
     <>
       <main className="bg-white h-screen flex flex-col">
@@ -60,7 +63,21 @@ export default function HomePage() {
             className="p-2 rounded hover:bg-gray-100"
             aria-label="Escanear QR"
           >
-
+            {/* Icono de escaneo */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-gray-800"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3"
+              />
+            </svg>
           </button>
         </header>
 
@@ -74,7 +91,20 @@ export default function HomePage() {
             onChange={e => setSearch(e.target.value)}
             onKeyUp={e => e.key === 'Enter' && fetchAttendees()}
           />
-   
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="absolute right-4 top-1/2 h-5 w-5 text-gray-400 -translate-y-1/2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"
+            />
+          </svg>
         </div>
 
         {/* Lista de asistentes */}
@@ -102,7 +132,21 @@ export default function HomePage() {
                 className="text-gray-400 hover:text-gray-600"
                 aria-label="Ver detalle"
               >
-     
+                {/* Flecha → */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
               </button>
             </li>
           ))}
@@ -113,6 +157,11 @@ export default function HomePage() {
       {isScanning && (
         <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
       )}
+
+      {/* DEBUG fallback en pantalla */}
+      <div className="fixed bottom-4 right-4 bg-white p-2 rounded shadow z-50 text-sm">
+        isScanning: {String(isScanning)}
+      </div>
     </>
   );
 }
