@@ -60,15 +60,7 @@ export default function HomePage() {
             className="p-2 rounded hover:bg-gray-100"
             aria-label="Escanear QR"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6 text-gray-800"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+
           </button>
         </header>
 
