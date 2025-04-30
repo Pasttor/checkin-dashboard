@@ -2,9 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-
-import { Modal } from '@/components/Modal/Modal';
-import { QrScanner } from '@/components/QrScanner/QrScanner';
+import { ScanModal } from '../components/ScanModal';
 
 interface Attendee {
   id: string;
@@ -15,12 +13,12 @@ interface Attendee {
 export default function HomePage() {
   const router = useRouter();
 
-  // 1) Estados
+  // Estados
   const [attendees, setAttendees] = useState<Attendee[]>([]);
   const [search, setSearch] = useState('');
   const [isScanning, setIsScanning] = useState(false);
 
-  // 2) Cargar asistentes
+  // Carga de asistentes
   const fetchAttendees = async () => {
     try {
       const res = await fetch(`/api/attendees?search=${encodeURIComponent(search)}`);
@@ -35,10 +33,9 @@ export default function HomePage() {
     fetchAttendees();
   }, []);
 
-  // 3) Escaneo de QR → check-in
+  // Manejo del escaneo
   const handleScan = async (code: string) => {
-    const parts = code.split('/');
-    const id = parts[parts.length - 1];
+    const id = code.split('/').pop()!;
     try {
       await fetch('/api/checkin', {
         method: 'POST',
@@ -53,64 +50,93 @@ export default function HomePage() {
   };
 
   return (
-    <main className="p-4 max-w-md mx-auto bg-gray-50 min-h-screen">
-      {/* Header */}
-      <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Nombre del Evento</h1>
-        <button
-          onClick={() => setIsScanning(true)}
-          className="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
-        >
-          Escanear QR
-        </button>
-      </header>
-
-      {/* Búsqueda */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Buscar asistentes..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          onKeyUp={e => e.key === 'Enter' && fetchAttendees()}
-        />
-      </div>
-
-      {/* Lista de asistentes */}
-      <ul className="space-y-3">
-        {attendees.length === 0 && (
-          <li className="text-center text-gray-500">No hay asistentes registrados.</li>
-        )}
-        {attendees.map(a => (
-          <li
-            key={a.id}
-            className="flex items-center justify-between bg-white shadow-sm rounded-lg p-4 hover:bg-gray-50"
+    <>
+      <main className="bg-white h-screen flex flex-col">
+        {/* Header */}
+        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
+          <h1 className="text-lg font-bold uppercase text-gray-800">Nombre del Evento</h1>
+          <button
+            onClick={() => setIsScanning(true)}
+            className="p-2 rounded hover:bg-gray-100"
+            aria-label="Escanear QR"
           >
-            <div className="flex items-center">
-              <span
-                className={`h-3 w-3 rounded-full mr-3 ${
-                  a.checked_in ? 'bg-blue-500' : 'bg-gray-300'
-                }`}
-              />
-              <span className="text-gray-800 font-medium">{a.name}</span>
-            </div>
-            <button
-              onClick={() => router.push(`/attendees/${a.id}`)}
-              className="text-gray-400 hover:text-gray-600"
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-gray-800"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
             >
-              →{/* o un ícono SVG */}
-            </button>
-          </li>
-        ))}
-      </ul>
+              <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </button>
+        </header>
 
-      {/* Modal de escaneo */}
+        {/* Search */}
+        <div className="px-4 py-2 border-b border-gray-200 relative">
+          <input
+            type="text"
+            placeholder="Buscar asistentes..."
+            className="w-full pr-10 text-gray-700 placeholder-gray-400 focus:outline-none"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            onKeyUp={e => e.key === 'Enter' && fetchAttendees()}
+          />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="absolute right-4 top-1/2 h-5 w-5 text-gray-400 -translate-y-1/2"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+
+        {/* Lista de asistentes */}
+        <ul className="flex-1 overflow-auto">
+          {attendees.length === 0 && (
+            <li className="px-4 py-3 text-center text-gray-500">
+              No hay asistentes registrados.
+            </li>
+          )}
+          {attendees.map(a => (
+            <li
+              key={a.id}
+              className="flex items-center justify-between px-4 py-3 border-b border-gray-200"
+            >
+              <div className="flex items-center">
+                <span
+                  className={`h-2 w-2 rounded-full mr-3 ${
+                    a.checked_in ? 'bg-blue-500' : 'bg-gray-400'
+                  }`}
+                />
+                <span className="text-gray-900">{a.name}</span>
+              </div>
+              <button
+                onClick={() => router.push(`/attendees/${a.id}`)}
+                className="text-gray-400 hover:text-gray-600"
+                aria-label="Ver detalle"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path d="M9 5l7 7-7 7" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      </main>
+
+      {/* Modal de escaneo full-screen */}
       {isScanning && (
-        <Modal onClose={() => setIsScanning(false)}>
-          <QrScanner onScan={handleScan} />
-        </Modal>
+        <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
       )}
-    </main>
+    </>
   );
 }

@@ -8,37 +8,27 @@ interface QrScannerProps {
 
 export function QrScanner({ onScan }: QrScannerProps) {
   useEffect(() => {
-    // Solo en cliente
     if (typeof window === 'undefined') return;
-
     const regionId = 'qr-reader';
     const html5QrCode = new Html5Qrcode(regionId);
 
     html5QrCode
       .start(
-        { facingMode: 'environment' },   // cámara trasera
+        { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         decodedText => {
           onScan(decodedText);
-          html5QrCode.stop();           // detiene la cámara tras el primer escaneo
+          html5QrCode.stop();
         },
-        errorMsg => {
-          // fallos de lectura intermedios: se ignoran
-        }
+        () => {}
       )
-      .catch(err => {
-        console.error('No se pudo iniciar el escáner de QR:', err);
-      });
+      .catch(console.error);
 
     return () => {
-      html5QrCode
-        .stop()
-        .then(() => html5QrCode.clear())
-        .catch(err => console.error('Error parando el escáner:', err));
+      html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
     };
   }, [onScan]);
 
-  return (
-    <div id="qr-reader" className="w-full h-64 bg-gray-100 rounded" />
-  );
+  // AQUÍ: ocupa todo el espacio que le des, flex-1 en el padre
+  return <div id="qr-reader" className="w-full h-full" />;
 }
