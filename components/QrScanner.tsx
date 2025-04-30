@@ -1,4 +1,5 @@
 // components/QrScanner.tsx
+
 import { useEffect } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 
@@ -9,6 +10,7 @@ interface QrScannerProps {
 export function QrScanner({ onScan }: QrScannerProps) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
+
     const regionId = 'qr-reader';
     const html5QrCode = new Html5Qrcode(regionId);
 
@@ -16,19 +18,24 @@ export function QrScanner({ onScan }: QrScannerProps) {
       .start(
         { facingMode: 'environment' },
         { fps: 10, qrbox: { width: 250, height: 250 } },
-        decodedText => {
+        (decodedText) => {
           onScan(decodedText);
           html5QrCode.stop();
         },
-        () => {}
+        (_error) => {
+          // fallos de lectura intermedios: ignorar
+        }
       )
       .catch(console.error);
 
     return () => {
-      html5QrCode.stop().then(() => html5QrCode.clear()).catch(console.error);
+      html5QrCode
+        .stop()
+        .then(() => html5QrCode.clear())
+        .catch(console.error);
     };
   }, [onScan]);
 
-  // AQUÍ: ocupa todo el espacio que le des, flex-1 en el padre
+  // Este div llenará todo el espacio restante del modal
   return <div id="qr-reader" className="w-full h-full" />;
 }

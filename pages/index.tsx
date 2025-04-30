@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ScanModal } from '../components/ScanModal';
+import { ScanModal } from '@/components/ScanModal';
 
 interface Attendee {
   id: string;
