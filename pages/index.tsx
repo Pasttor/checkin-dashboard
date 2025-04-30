@@ -53,7 +53,13 @@ export default function HomePage() {
   console.log('isScanning:', isScanning);
 
   return (
+
+
+    
     <>
+     <div className="bg-red-500 text-white p-4">¡Tailwind funciona!</div>
+
+
       <main className="bg-white h-screen flex flex-col">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-gray-200">
