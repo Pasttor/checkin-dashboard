@@ -1,5 +1,3 @@
-// components/QrScanner.tsx
-
 import { useEffect } from 'react';
 import type { Html5Qrcode } from 'html5-qrcode';
 import styles from './QrScanner.module.css';
@@ -11,12 +9,12 @@ interface QrScannerProps {
 export function QrScanner({ onScan }: QrScannerProps) {
   useEffect(() => {
     let html5QrCode: Html5Qrcode | null = null;
-    let isCancelled = false;
+    let cancelled = false;
 
     if (typeof window !== 'undefined') {
       import('html5-qrcode')
         .then(({ Html5Qrcode: QrClass }) => {
-          if (isCancelled) return;
+          if (cancelled) return;
           html5QrCode = new QrClass('qr-reader');
 
           html5QrCode
@@ -24,15 +22,11 @@ export function QrScanner({ onScan }: QrScannerProps) {
               { facingMode: 'environment' },
               { fps: 10, qrbox: { width: 250, height: 250 } },
               (decodedText: string) => {
+                // Sólo notificamos el scan, no paramos aquí
                 onScan(decodedText);
-                html5QrCode
-                  ?.stop()
-                  .catch(err => {
-                    console.warn('QR stop error (ignored):', err);
-                  });
               },
               (_errorMessage: string) => {
-                // lecturas fallidas intermedias: no paramos nada
+                // lecturas fallidas intermedias: ignoramos
               }
             )
             .catch(err => {
@@ -45,7 +39,8 @@ export function QrScanner({ onScan }: QrScannerProps) {
     }
 
     return () => {
-      isCancelled = true;
+      cancelled = true;
+      // Paramos siempre en el cleanup
       html5QrCode
         ?.stop()
         .then(() => html5QrCode?.clear())
