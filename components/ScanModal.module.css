@@ -1,0 +1,24 @@
+/* components/ScanModal.module.css */
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+  }
+  
+  .close {
+    align-self: flex-end;
+    margin: 1rem;
+    font-size: 2rem;
+    color: white;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .scanner {
+    flex: 1;
+  }
+  
