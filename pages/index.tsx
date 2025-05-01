@@ -2,8 +2,14 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { ScanModal } from '../components/ScanModal';
+import dynamic from 'next/dynamic';
 import styles from '../styles/Home.module.css';
+
+// Carga ScanModal sin SSR para evitar errores en Vercel
+const ScanModal = dynamic(
+  () => import('../components/ScanModal').then(mod => mod.ScanModal),
+  { ssr: false }
+);
 
 interface Attendee {
   id: string;
@@ -19,7 +25,7 @@ export default function HomePage() {
   const [search, setSearch] = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
 
-  // Carga de asistentes
+  // Obtener lista de asistentes
   const fetchAttendees = async () => {
     try {
       const res = await fetch(
@@ -36,7 +42,7 @@ export default function HomePage() {
     fetchAttendees();
   }, []);
 
-  // Manejo del escaneo
+  // Al leer un QR, marcar check-in
   const handleScan = async (code: string) => {
     const id = code.split('/').pop()!;
     try {
@@ -45,10 +51,11 @@ export default function HomePage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       });
-      setIsScanning(false);
-      fetchAttendees();
     } catch (err) {
       console.error('Error during check-in:', err);
+    } finally {
+      setIsScanning(false);
+      fetchAttendees();
     }
   };
 
@@ -59,18 +66,19 @@ export default function HomePage() {
         <header className={styles.header}>
           <h1 className={styles.title}>Nombre del Evento</h1>
           <button
+            type="button"
             onClick={() => setIsScanning(true)}
             className={styles.scanButton}
             aria-label="Escanear QR"
           >
-            {/* SVG icono de QR */}
+            {/* Icono QR */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              width={24}
-              height={24}
             >
               <path
                 strokeLinecap="round"
@@ -82,27 +90,27 @@ export default function HomePage() {
           </button>
         </header>
 
-        {/* Search */}
+        {/* Búsqueda */}
         <div className={styles.searchWrapper}>
           <input
             type="text"
             placeholder="Buscar asistentes..."
             className={styles.searchInput}
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyUp={(e) => {
+            onChange={e => setSearch(e.target.value)}
+            onKeyUp={e => {
               if (e.key === 'Enter') fetchAttendees();
             }}
           />
           <div className={styles.iconWrapper}>
-            {/* SVG lupa */}
+            {/* Icono lupa */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
+              width={20}
+              height={20}
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
-              width={20}
-              height={20}
             >
               <path
                 strokeLinecap="round"
@@ -117,19 +125,13 @@ export default function HomePage() {
         {/* Lista de asistentes */}
         <ul className={styles.list}>
           {attendees.length === 0 ? (
-            <li
-              style={{
-                textAlign: 'center',
-                color: '#6B7280',
-                padding: '0.75rem 1rem',
-              }}
-            >
+            <li className={styles.noAttendees}>
               No hay asistentes registrados.
             </li>
           ) : (
-            attendees.map((a) => (
+            attendees.map(a => (
               <li key={a.id} className={styles.item}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div className={styles.itemInfo}>
                   <span
                     className={`${styles.dot} ${
                       a.checked_in ? styles.checked : styles.unchecked
@@ -138,18 +140,19 @@ export default function HomePage() {
                   <span className={styles.name}>{a.name}</span>
                 </div>
                 <button
+                  type="button"
                   onClick={() => router.push(`/attendees/${a.id}`)}
                   className={styles.arrowButton}
                   aria-label="Ver detalle"
                 >
-                  {/* SVG flecha → */}
+                  {/* Icono flecha → */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
+                    width={20}
+                    height={20}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
-                    width={20}
-                    height={20}
                   >
                     <path
                       strokeLinecap="round"
@@ -165,7 +168,7 @@ export default function HomePage() {
         </ul>
       </main>
 
-      {/* Modal de escaneo real */}
+      {/* Modal de escaneo */}
       {isScanning && (
         <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
       )}
