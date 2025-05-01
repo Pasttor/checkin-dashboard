@@ -1,5 +1,5 @@
 // components/ScanModal.tsx
-import { QrScanner } from '../components/QrScanner';
+import { QrScanner } from './QrScanner';
 import styles from './ScanModal.module.css';
 
 interface ScanModalProps {
@@ -9,7 +9,6 @@ interface ScanModalProps {
 
 export function ScanModal({ onClose, onScan }: ScanModalProps) {
   console.log('🔴 ScanModal render');
-
   return (
     <div className={styles.overlay}>
       <button onClick={onClose} className={styles.close} aria-label="Cerrar escáner">
