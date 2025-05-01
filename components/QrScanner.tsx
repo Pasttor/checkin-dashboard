@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
+import styles from './QrScanner.module.css';
 
 interface QrScannerProps {
   onScan: (decodedText: string) => void;
@@ -36,6 +37,5 @@ export function QrScanner({ onScan }: QrScannerProps) {
     };
   }, [onScan]);
 
-  // Este div llenará todo el espacio restante del modal
-  return <div id="qr-reader" className="w-full h-full" />;
+  return <div id="qr-reader" className={styles.reader} />;
 }
