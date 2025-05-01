@@ -1,5 +1,7 @@
 // components/Modal.tsx
+
 import { ReactNode, useEffect } from 'react';
+import styles from './Modal.module.css';
 
 interface ModalProps {
   children: ReactNode;
@@ -17,17 +19,14 @@ export function Modal({ children, onClose }: ModalProps) {
   }, [onClose]);
 
   return (
-    <div
-      className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
-      onClick={onClose}
-    >
+    <div className={styles.overlay} onClick={onClose}>
       <div
-        className="relative bg-white rounded shadow-lg p-4 max-w-full w-11/12 sm:w-3/4"
-        onClick={e => e.stopPropagation()}
+        className={styles.content}
+        onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-800 text-xl"
+          className={styles.closeButton}
           aria-label="Cerrar"
         >
           &times;
