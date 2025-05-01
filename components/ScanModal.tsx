@@ -1,6 +1,5 @@
 // components/ScanModal.tsx
-
-import { QrScanner } from '@/components/QrScanner';
+import { QrScanner } from '../components/QrScanner';
 
 interface ScanModalProps {
   onClose: () => void;
@@ -8,24 +7,37 @@ interface ScanModalProps {
 }
 
 export function ScanModal({ onClose, onScan }: ScanModalProps) {
+  console.log('🔴 ScanModal render');
 
-    console.log('🔴 ScanModal render'); 
+  const overlayStyle: React.CSSProperties = {
+    position: 'fixed',
+    inset: 0,
+    background: 'rgba(255,0,0,0.5)',  // rojo semitransparente
+    display: 'flex',
+    flexDirection: 'column',
+    zIndex: 9999,
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    alignSelf: 'flex-end',
+    margin: '1rem',
+    fontSize: '2rem',
+    color: '#fff',
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+  };
+
+  const scannerContainerStyle: React.CSSProperties = {
+    flex: 1,
+  };
 
   return (
-    <div
-      className="fixed inset-0 bg-red-500 bg-opacity-50 z-50 flex flex-col"
-    >
-      {/* Botón cerrar */}
-      <button
-        onClick={onClose}
-        className="self-end m-4 text-white text-3xl"
-        aria-label="Cerrar escáner"
-      >
+    <div style={overlayStyle}>
+      <button onClick={onClose} style={buttonStyle} aria-label="Cerrar escáner">
         &times;
       </button>
-
-      {/* Contenedor del scanner */}
-      <div className="flex-1">
+      <div style={scannerContainerStyle}>
         <QrScanner onScan={onScan} />
       </div>
     </div>
