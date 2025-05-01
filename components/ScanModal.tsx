@@ -1,4 +1,5 @@
 // components/ScanModal.tsx
+
 import { QrScanner } from './QrScanner';
 import styles from './ScanModal.module.css';
 
