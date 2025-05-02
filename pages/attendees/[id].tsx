@@ -56,17 +56,36 @@ export default function AttendeeDetail({ attendee }: Props) {
       <div className={styles.detailContainer}>
         {/* Header con back + scan */}
         <div className={styles.detailHeader}>
-  <button className={styles.backButton} onClick={() => router.back()}>
-    ←
-  </button>
-  <h3 className={styles.detailTitle}>Nombre del Evento</h3>
-  <button
-    className={styles.scanButton}
-    onClick={() => setIsScanning(true)}
-  >
-    {/* ícono */}
-  </button>
-</div>
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className={styles.backButton}
+          >
+            ←
+          </button>
+          <h3 className={styles.detailTitle}>Nombre del Evento</h3>
+          <button
+            type="button"
+            onClick={() => setIsScanning(true)}
+            className={styles.scanButton}
+            aria-label="Escanear QR"
+          >
+            {/* icono escáner */}
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width={24}
+              height={24}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#111827"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" />
+            </svg>
+          </button>
+        </div>
 
         {/* Nombre + badge debajo */}
         <div className={styles.nameSection}>
