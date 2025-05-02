@@ -119,11 +119,17 @@
 
 /* --- Header --- */
 .detailHeader {
+  position: relative;
+  width: 100%;
+  height: 56px;            /* altura fija */
+  flex-shrink: 0;          /* nunca se encoge */
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
+  align-items: center;     /* centra verticalmente sus hijos (texto, iconos) dentro de esos 56px */
+  justify-content: center; /* centra el título horizontalmente */
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
 }
+
 .backButton {
   background: none;
   border: none;
