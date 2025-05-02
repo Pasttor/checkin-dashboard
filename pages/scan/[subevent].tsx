@@ -24,14 +24,16 @@ export default function ScanPage() {
 
   const handleScan = async (code: string) => {
     const id = code.split('/').pop()!;
-    await fetch('/api/checkin', {
+    console.log('→ Escaneo detectado, id=', id, 'subevent=', subevent);
+    const res = await fetch('/api/checkin', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, subevent }),
     });
-    // Después de escanear, volvemos al listado
+    console.log('← Respuesta /api/checkin:', res.status, await res.json());
     router.push('/');
   };
+  
 
   return (
     <>

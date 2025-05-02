@@ -9,6 +9,12 @@ const supabase = createClient(
 );
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+  console.log('⚡️ /api/checkin body:', req.body);
+
+
+
+
   if (req.method !== 'POST') return res.status(405).end();
 
   const { id, subevent } = req.body as { id: string; subevent: string };
