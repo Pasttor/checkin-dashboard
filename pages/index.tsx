@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
-import dynamic                   from 'next/dynamic';
-import styles                    from '../styles/Home.module.css';
+import Link                     from 'next/link';
+import dynamic                  from 'next/dynamic';
+import styles                   from '../styles/Home.module.css';
 
 // Carga ScanModal sin SSR para evitar errores en Vercel
 const ScanModal = dynamic(
@@ -21,16 +22,14 @@ export default function HomePage() {
   const router = useRouter();
 
   // Estados
-  const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [search, setSearch]       = useState<string>('');
+  const [attendees, setAttendees]   = useState<Attendee[]>([]);
+  const [search, setSearch]         = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
 
   // Obtener lista de asistentes
   const fetchAttendees = async () => {
     try {
-      const res = await fetch(
-        `/api/attendees?search=${encodeURIComponent(search)}`
-      );
+      const res  = await fetch(`/api/attendees?search=${encodeURIComponent(search)}`);
       const json = await res.json();
       setAttendees(json.attendees || []);
     } catch (err) {
@@ -47,9 +46,9 @@ export default function HomePage() {
     const id = code.split('/').pop()!;
     try {
       await fetch('/api/checkin', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+        body:    JSON.stringify({ id, subevent: 'main' }),
       });
     } catch (err) {
       console.error('Error during check-in:', err);
@@ -89,6 +88,15 @@ export default function HomePage() {
             </svg>
           </button>
         </header>
+
+        {/* Enlace de prueba para Charla A */}
+        <div style={{ padding: '1rem', textAlign: 'center' }}>
+          <Link href="/scan/charla-a">
+            <a style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+              Escanear Charla A (prueba)
+            </a>
+          </Link>
+        </div>
 
         {/* Búsqueda */}
         <div className={styles.searchWrapper}>
