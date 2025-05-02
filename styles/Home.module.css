@@ -106,3 +106,98 @@
     z-index: 50;
   }
   
+  /* Home.module.css */
+
+/* --- Contenedor global --- */
+.detailContainer {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+/* --- Header --- */
+.detailHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+.backButton {
+  background: none;
+  border: none;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.scanButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* --- Nombre y estado --- */
+.detailNameRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.attendeeName {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+.statusBadgeChecked,
+.statusBadgeNotChecked {
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+.statusBadgeChecked {
+  background-color: #3b82f6;
+  color: #fff;
+}
+.statusBadgeNotChecked {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+/* --- Lista de detalles --- */
+.detailList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+}
+.detailList li {
+  margin-bottom: 1rem;
+}
+.detailList strong {
+  display: block;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+.detailList p {
+  margin: 0.25rem 0 0;
+  font-size: 1rem;
+  color: #111827;
+}
+
+/* --- Botón Check-In --- */
+.checkinButton {
+  margin-top: auto;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.checkinButton:disabled {
+  background-color: #9ca3af;
+  cursor: default;
+}
