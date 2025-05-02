@@ -1,11 +1,11 @@
 // pages/attendees/[id].tsx
 
 import { GetServerSideProps } from 'next';
-import { useRouter }         from 'next/router';
-import dynamic                from 'next/dynamic';
-import { useState }           from 'react';
-import { supabase }           from '../../lib/supabase';
-import styles                 from '../../styles/Home.module.css';
+import { useRouter }            from 'next/router';
+import dynamic                   from 'next/dynamic';
+import { useState }              from 'react';
+import { supabase }              from '../../lib/supabase';
+import styles                    from '../../styles/Home.module.css';
 
 // Cargamos dinámicamente el ScanModal sin SSR
 const ScanModal = dynamic(
@@ -29,9 +29,9 @@ interface Props {
 
 export default function AttendeeDetail({ attendee }: Props) {
   const router = useRouter();
-  const [checkedIn, setCheckedIn]     = useState(attendee.checked_in);
-  const [loading, setLoading]         = useState(false);
-  const [isScanning, setIsScanning]   = useState(false);
+  const [checkedIn, setCheckedIn]   = useState(attendee.checked_in);
+  const [loading, setLoading]       = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
 
   const handleCheckIn = async () => {
     setLoading(true);
@@ -63,7 +63,7 @@ export default function AttendeeDetail({ attendee }: Props) {
           >
             ←
           </button>
-          <h1 className={styles.detailTitle}>Attendee Details</h1>
+          <h3 className={styles.detailTitle}>Nombre del Evento</h3>
           <button
             type="button"
             onClick={() => setIsScanning(true)}
@@ -87,7 +87,7 @@ export default function AttendeeDetail({ attendee }: Props) {
           </button>
         </div>
 
-        {/* Nombre del asistente */}
+        {/* Nombre + badge debajo */}
         <div className={styles.nameSection}>
           <h2 className={styles.attendeeName}>{attendee.name}</h2>
           <span
@@ -149,6 +149,7 @@ export default function AttendeeDetail({ attendee }: Props) {
       {/* Modal de escaneo */}
       {isScanning && (
         <ScanModal
+          eventName="Nombre del Evento"
           onClose={() => setIsScanning(false)}
           onScan={async (code: string) => {
             // tras escanear, hacemos check-in
@@ -178,5 +179,7 @@ export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
     return { notFound: true };
   }
 
-  return { props: { attendee: data } };
+  return {
+    props: { attendee: data },
+  };
 };

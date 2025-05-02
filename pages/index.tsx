@@ -1,13 +1,13 @@
 // pages/index.tsx
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import dynamic from 'next/dynamic';
-import styles from '../styles/Home.module.css';
+import { useRouter }            from 'next/router';
+import dynamic                   from 'next/dynamic';
+import styles                    from '../styles/Home.module.css';
 
 // Carga ScanModal sin SSR para evitar errores en Vercel
 const ScanModal = dynamic(
-  () => import('../components/ScanModal').then(mod => mod.ScanModal),
+  () => import('../components/ScanModal').then((mod) => mod.ScanModal),
   { ssr: false }
 );
 
@@ -22,7 +22,7 @@ export default function HomePage() {
 
   // Estados
   const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [search, setSearch] = useState<string>('');
+  const [search, setSearch]       = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
 
   // Obtener lista de asistentes
@@ -97,8 +97,8 @@ export default function HomePage() {
             placeholder="Buscar asistentes..."
             className={styles.searchInput}
             value={search}
-            onChange={e => setSearch(e.target.value)}
-            onKeyUp={e => {
+            onChange={(e) => setSearch(e.target.value)}
+            onKeyUp={(e) => {
               if (e.key === 'Enter') fetchAttendees();
             }}
           />
@@ -129,7 +129,7 @@ export default function HomePage() {
               No hay asistentes registrados.
             </li>
           ) : (
-            attendees.map(a => (
+            attendees.map((a) => (
               <li key={a.id} className={styles.item}>
                 <div className={styles.itemInfo}>
                   <span
@@ -170,7 +170,11 @@ export default function HomePage() {
 
       {/* Modal de escaneo */}
       {isScanning && (
-        <ScanModal onClose={() => setIsScanning(false)} onScan={handleScan} />
+        <ScanModal
+          eventName="Nombre del Evento"
+          onClose={() => setIsScanning(false)}
+          onScan={handleScan}
+        />
       )}
     </>
   );
