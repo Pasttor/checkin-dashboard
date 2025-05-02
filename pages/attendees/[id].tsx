@@ -1,8 +1,9 @@
 // pages/attendees/[id].tsx
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import styles from '../../styles/Home.module.css';
+import { GetServerSideProps } from 'next';
+import { useRouter }         from 'next/router';
+import { supabase }          from '../../lib/supabase';
+import styles                from '../../styles/Home.module.css';
 
 interface Attendee {
   id: string;
@@ -15,48 +16,12 @@ interface Attendee {
   qr_code_url: string;
 }
 
-export default function AttendeeDetail() {
+interface Props {
+  attendee: Attendee;
+}
+
+export default function AttendeeDetail({ attendee }: Props) {
   const router = useRouter();
-  const { id } = router.query;
-  const attendeeId = Array.isArray(id) ? id[0] : id;
-
-  const [attendee, setAttendee] = useState<Attendee | null>(null);
-  const [loading, setLoading]   = useState<boolean>(true);
-  const [error, setError]       = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!attendeeId) return;
-    const idStr = attendeeId; // ahora idStr es definitivamente string
-
-    async function fetchAttendee() {
-      try {
-        const res = await fetch(
-          `/api/attendees/${encodeURIComponent(idStr)}`
-        );
-        if (!res.ok) {
-          throw new Error(res.statusText);
-        }
-        const json = (await res.json()) as { attendee: Attendee };
-        setAttendee(json.attendee);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchAttendee();
-  }, [attendeeId]);
-
-  if (loading) {
-    return <p className={styles.loading}>Cargando…</p>;
-  }
-  if (error) {
-    return <p className={styles.error}>Error: {error}</p>;
-  }
-  if (!attendee) {
-    return <p className={styles.error}>Asistente no encontrado.</p>;
-  }
 
   return (
     <div className={styles.detailContainer}>
@@ -100,3 +65,25 @@ export default function AttendeeDetail() {
     </div>
   );
 }
+
+export const getServerSideProps: GetServerSideProps<Props> = async (ctx) => {
+  const { id } = ctx.params!;
+
+  // Hacemos la consulta sin genéricos en .from()
+  // y tipamos con .single<Attendee>() al final
+  const { data, error } = await supabase
+    .from('registrations')
+    .select('*')
+    .eq('id', id as string)
+    .single<Attendee>();
+
+  if (error || !data) {
+    return { notFound: true };
+  }
+
+  return {
+    props: {
+      attendee: data,
+    },
+  };
+};
