@@ -201,3 +201,18 @@
   background-color: #9ca3af;
   cursor: default;
 }
+/* debajo del nombre, en una nueva sección */
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+/* tu badge, ahora centrado bajo el nombre */
+.statusBadgeChecked,
+.statusBadgeNotChecked {
+  margin-top: 0.5rem;
+}
+
+
