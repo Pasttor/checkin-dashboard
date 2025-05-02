@@ -215,4 +215,46 @@
   margin-top: 0.5rem;
 }
 
+/* styles/Home.module.css */
+
+/* Header general */
+.header {
+  position: relative;       /* permitimos absolutely posicionar los botones */
+  display: flex;
+  align-items: center;
+  justify-content: center;  /* Título siempre centrado */
+  height: 56px;
+  padding: 0 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Botón “volver” o “scan” (usa esto tanto en index como en detalle) */
+.backButton,
+.scanButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Si solo tienes un botón de scan (en index) sitúalo a la derecha */
+.scanButton {
+  right: 16px;
+}
+
+/* Si en detalle usas back + scan, añade esto también */
+.backButton {
+  left: 16px;
+}
+
+/* Tu título, centrado en el flex container */
+.title,
+.detailTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
 

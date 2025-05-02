@@ -64,31 +64,15 @@ export default function HomePage() {
       <main className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
-          <h1 className={styles.title}>Nombre del Evento</h1>
-          <button
-            type="button"
-            onClick={() => setIsScanning(true)}
-            className={styles.scanButton}
-            aria-label="Escanear QR"
-          >
-            {/* Icono QR */}
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width={24}
-              height={24}
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3"
-              />
-            </svg>
-          </button>
-        </header>
+  <h1 className={styles.title}>Nombre del Evento</h1>
+  <button
+    type="button"
+    onClick={() => setIsScanning(true)}
+    className={styles.scanButton}
+  >
+    {/* ícono */}
+  </button>
+</header>
 
         {/* Búsqueda */}
         <div className={styles.searchWrapper}>
