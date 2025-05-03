@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
-import styles                   from '../../styles/Home.module.css';
+import styles                   from '../../styles/Detail.module.css'; // nuevo módulo
 
 interface Attendee {
   id: string;
@@ -12,7 +12,6 @@ interface Attendee {
   role: string;
   checked_in: boolean;
   created_at: string;
-  qr_code_url: string;
 }
 
 type CheckinsGrouped = Record<
@@ -24,10 +23,10 @@ export default function AttendeeDetailPage() {
   const router = useRouter();
   const { id } = router.query as { id: string };
 
-  const [attendee, setAttendee]       = useState<Attendee | null>(null);
-  const [checkins, setCheckins]       = useState<CheckinsGrouped | null>(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState<string | null>(null);
+  const [attendee, setAttendee]   = useState<Attendee | null>(null);
+  const [checkins, setCheckins]   = useState<CheckinsGrouped | null>(null);
+  const [loading, setLoading]     = useState(true);
+  const [error, setError]         = useState<string | null>(null);
 
   useEffect(() => {
     if (!id) return;
@@ -35,12 +34,9 @@ export default function AttendeeDetailPage() {
       try {
         const res = await fetch(`/api/attendees/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(await res.text());
-        const json: {
-          attendee: Attendee;
-          checkins: CheckinsGrouped;
-        } = await res.json();
-        setAttendee(json.attendee);
-        setCheckins(json.checkins);
+        const { attendee, checkins } = await res.json();
+        setAttendee(attendee);
+        setCheckins(checkins);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -54,7 +50,6 @@ export default function AttendeeDetailPage() {
   if (error)   return <p className={styles.error}>Error: {error}</p>;
   if (!attendee || !checkins) return <p className={styles.error}>No encontrado.</p>;
 
-  // Helpers para mostrar nombres legibles
   const labels: Record<string,string> = {
     main:        'Entrada Principal',
     'charla-a':  'Charla A',
@@ -64,47 +59,90 @@ export default function AttendeeDetailPage() {
   };
 
   return (
-    <div className={styles.detailContainer}>
-      {/* Botón volver */}
-      <button
-        type="button"
-        onClick={() => router.back()}
-        className={styles.backButton}
-      >
-        ← Volver
-      </button>
+    <div className={styles.container}>
+      {/* HEADER */}
+      <header className={styles.header}>
+        <button
+          type="button"
+          onClick={() => router.back()}
+          className={styles.backButton}
+          aria-label="Volver"
+        >
+          {/* SVG simple flecha */}
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        <h1 className={styles.eventTitle}>Nombre del Evento</h1>
+        <button
+          type="button"
+          onClick={() => router.push(`/scan/main?returnTo=/attendees/${id}`)}
+          className={styles.scanButton}
+          aria-label="Escanear QR"
+        >
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" />
+          </svg>
+        </button>
+      </header>
 
-      {/* Datos principales */}
-      <h1 className={styles.detailTitle}>{attendee.name}</h1>
-      <p>
-        <strong>Email:</strong> {attendee.email}<br/>
-        <strong>Teléfono:</strong> {attendee.phone}<br/>
-        <strong>Rol:</strong> {attendee.role}<br/>
-        <strong>Registrado:</strong>{' '}
-        {new Date(attendee.created_at).toLocaleString()}
-      </p>
-      <p>
-        <strong>Status Check-in:</strong>{' '}
+      {/* NOMBRE + BADGE */}
+      <section className={styles.profileSection}>
+        <h2 className={styles.name}>{attendee.name}</h2>
         <span
-          className={attendee.checked_in
-            ? styles.statusBadgeChecked
-            : styles.statusBadgeNotChecked}
+          className={
+            attendee.checked_in
+              ? styles.badgeChecked
+              : styles.badgeNotChecked
+          }
         >
           {attendee.checked_in ? 'Checked-in' : 'Not Checked-in'}
         </span>
-      </p>
+      </section>
 
-      {/* Sección de contadores e historial */}
+      {/* INFO BÁSICA */}
+      <section className={styles.infoSection}>
+        <p>
+          <strong>Ticket Title</strong><br/>
+          Nombre del evento
+        </p>
+        <p>
+          <strong>Order Date</strong><br/>
+          {new Date(attendee.created_at).toLocaleDateString('en-US', {
+            month: 'short',
+            day: '2-digit',
+            year: 'numeric',
+          })}
+        </p>
+        <p>
+          <strong>Rol</strong><br/>
+          {attendee.role}
+        </p>
+        <p>
+          <strong>Email</strong><br/>
+          {attendee.email}
+        </p>
+        <p>
+          <strong>Número de teléfono</strong><br/>
+          {attendee.phone}
+        </p>
+      </section>
+
+      {/* DIVISOR */}
+      <hr className={styles.divider} />
+
+      {/* HISTORIAL Y CONTADORES */}
       <section className={styles.checksSection}>
-        <h2 className={styles.subheader}>Historial de Entradas</h2>
+        <h3 className={styles.sectionTitle}>Historial de Entradas</h3>
 
         { (Object.keys(checkins) as (keyof CheckinsGrouped)[]).map((sub) => {
           const times = checkins[sub];
           return (
             <div key={sub} className={styles.checkBlock}>
-              <h3 className={styles.checkTitle}>
-                {labels[sub]} ({times.length})
-              </h3>
+              <div className={styles.checkHeader}>
+                <span className={styles.checkTitle}>{labels[sub]}</span>
+                <span className={styles.checkCount}>{times.length}</span>
+              </div>
               <ul className={styles.checkList}>
                 {times.map((ts) => (
                   <li key={ts}>
@@ -119,6 +157,17 @@ export default function AttendeeDetailPage() {
           );
         })}
       </section>
+
+      {/* BOTÓN DE CHECK-IN */}
+      <button
+        type="button"
+        onClick={() => {
+          /* mismo handler que antes, o tirar POST /api/checkin con subevent="main" */
+        }}
+        className={styles.checkinButton}
+      >
+        Check-In
+      </button>
     </div>
   );
 }
