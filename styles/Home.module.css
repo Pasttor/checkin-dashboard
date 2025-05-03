@@ -264,3 +264,33 @@
   color: #111827;
 }
 
+/* Sección de checks */
+.checksSection {
+  margin-top: 2rem;
+}
+.subheader {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+.checkBlock {
+  margin-bottom: 1.5rem;
+}
+.checkTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+.checkList {
+  list-style: none;
+  padding-left: 1rem;
+  margin: 0;
+  color: #374151;
+}
+.checkList li {
+  margin-bottom: 0.25rem;
+}
+.noHistory {
+  font-style: italic;
+  color: #9ca3af;
+}
