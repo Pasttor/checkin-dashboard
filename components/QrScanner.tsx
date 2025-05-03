@@ -1,3 +1,5 @@
+// components/QrScanner.tsx
+
 import { useEffect } from 'react';
 import type { Html5Qrcode } from 'html5-qrcode';
 import styles from './QrScanner.module.css';
@@ -8,45 +10,65 @@ interface QrScannerProps {
 
 export function QrScanner({ onScan }: QrScannerProps) {
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     let html5QrCode: Html5Qrcode | null = null;
-    let cancelled = false;
+    let scannerStarted = false;
 
-    if (typeof window !== 'undefined') {
-      import('html5-qrcode')
-        .then(({ Html5Qrcode: QrClass }) => {
-          if (cancelled) return;
-          html5QrCode = new QrClass('qr-reader');
+    import('html5-qrcode')
+      .then(({ Html5Qrcode: QrClass }) => {
+        html5QrCode = new QrClass('qr-reader');
 
-          html5QrCode
-            .start(
-              { facingMode: 'environment' },
-              { fps: 10, qrbox: { width: 250, height: 250 } },
-              (decodedText: string) => {
-                // Sólo notificamos el scan, no paramos aquí
-                onScan(decodedText);
-              },
-              (_errorMessage: string) => {
-                // lecturas fallidas intermedias: ignoramos
-              }
-            )
-            .catch(err => {
-              console.error('QR start failed:', err);
-            });
-        })
-        .catch(err => {
-          console.error('Failed to import html5-qrcode:', err);
-        });
-    }
+        return html5QrCode
+          .start(
+            { facingMode: 'environment' },
+            { fps: 10, qrbox: { width: 260, height: 260 } },
+            (decodedText) => {
+              onScan(decodedText);
+            },
+            (_errorMessage) => {
+              // lecturas fallidas intermedias: ignoramos
+            }
+          )
+          .then(() => {
+            scannerStarted = true;
+          });
+      })
+      .catch((err) => {
+        console.error('No se pudo inicializar html5-qrcode:', err);
+      });
 
     return () => {
-      cancelled = true;
-      // Paramos siempre en el cleanup
-      html5QrCode
-        ?.stop()
-        .then(() => html5QrCode?.clear())
-        .catch(err => {
-          console.warn('QR cleanup stop error (ignored):', err);
-        });
+      if (!html5QrCode) return;
+
+      if (scannerStarted) {
+        // Si arrancó, detenemos primero y luego limpiamos
+        html5QrCode
+          .stop()
+          .then(() => {
+            try {
+              html5QrCode?.clear();
+            } catch (cleErr) {
+              console.warn('Error al limpiar html5-qr:', cleErr);
+            }
+          })
+          .catch((stopErr) => {
+            console.warn('No se pudo detener el escáner:', stopErr);
+            // aunque no se detenga, intentamos limpiar
+            try {
+              html5QrCode?.clear();
+            } catch (cleErr) {
+              console.warn('Error al limpiar tras stop fallido:', cleErr);
+            }
+          });
+      } else {
+        // Si nunca arrancó, sólo limpiamos
+        try {
+          html5QrCode.clear();
+        } catch (cleErr) {
+          console.warn('Error al limpiar html5-qr antes de iniciar:', cleErr);
+        }
+      }
     };
   }, [onScan]);
 
