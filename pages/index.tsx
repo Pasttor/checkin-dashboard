@@ -91,10 +91,11 @@ export default function HomePage() {
 
         {/* Enlace de prueba para Charla A */}
         <div style={{ padding: '1rem', textAlign: 'center' }}>
-          <Link href="/scan/charla-a">
-            <a style={{ color: '#3b82f6', textDecoration: 'underline' }}>
-              Escanear Charla A (prueba)
-            </a>
+          <Link
+            href="/scan/charla-a"
+            className="text-blue-600 underline"
+          >
+            Escanear Charla A (prueba)
           </Link>
         </div>
 
