@@ -6,7 +6,7 @@ import Link                     from 'next/link';
 import dynamic                  from 'next/dynamic';
 import styles                   from '../styles/Home.module.css';
 
-// Carga ScanModal sin SSR para evitar errores en Vercel
+// ScanModal cargado sin SSR
 const ScanModal = dynamic(
   () => import('../components/ScanModal').then((mod) => mod.ScanModal),
   { ssr: false }
@@ -21,15 +21,16 @@ interface Attendee {
 export default function HomePage() {
   const router = useRouter();
 
-  // Estados
-  const [attendees, setAttendees]   = useState<Attendee[]>([]);
-  const [search, setSearch]         = useState<string>('');
-  const [isScanning, setIsScanning] = useState<boolean>(false);
+  // Lista de asistentes + búsqueda
+  const [attendees, setAttendees] = useState<Attendee[]>([]);
+  const [search, setSearch]       = useState<string>('');
 
-  // Obtener lista de asistentes
+  // Función para obtener asistentes
   const fetchAttendees = async () => {
     try {
-      const res  = await fetch(`/api/attendees?search=${encodeURIComponent(search)}`);
+      const res  = await fetch(
+        `/api/attendees?search=${encodeURIComponent(search)}`
+      );
       const json = await res.json();
       setAttendees(json.attendees || []);
     } catch (err) {
@@ -37,24 +38,42 @@ export default function HomePage() {
     }
   };
 
+  // Llamamos a fetchAttendees una vez al montar
   useEffect(() => {
+    // evitar retornar Promise en el callback
     fetchAttendees();
   }, []);
 
-  // Al leer un QR, marcar check-in
+  // Estados para el escáner principal
+  const [isScanning, setIsScanning]       = useState<boolean>(false);
+  const [hasScannedMain, setHasScannedMain] = useState<boolean>(false);
+
+  // Reset del flag cuando abrimos el modal
+  useEffect(() => {
+    if (isScanning) {
+      setHasScannedMain(false);
+    }
+  }, [isScanning]);
+
   const handleScan = async (code: string) => {
+    if (hasScannedMain) return;
+    setHasScannedMain(true);
+
     const id = code.split('/').pop()!;
     try {
-      await fetch('/api/checkin', {
+      const res = await fetch('/api/checkin', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ id, subevent: 'main' }),
       });
+      if (!res.ok) {
+        console.error('Check-in fallido:', await res.text());
+      }
     } catch (err) {
-      console.error('Error during check-in:', err);
+      console.error('Error durante check-in:', err);
     } finally {
       setIsScanning(false);
-      fetchAttendees();
+      router.push(`/attendees/${id}`);
     }
   };
 
@@ -89,13 +108,22 @@ export default function HomePage() {
           </button>
         </header>
 
-        {/* Enlace de prueba para Charla A */}
+        {/* Enlaces de prueba a subeventos */}
         <div style={{ padding: '1rem', textAlign: 'center' }}>
-          <Link
-            href="/scan/charla-a"
-            className="text-blue-600 underline"
-          >
-            Escanear Charla A (prueba)
+          <Link href="/scan/charla-a" className="underline text-blue-600">
+            Escanear Charla A
+          </Link>{' '}
+          |{' '}
+          <Link href="/scan/taller-b" className="underline text-blue-600">
+            Taller B
+          </Link>{' '}
+          |{' '}
+          <Link href="/scan/networking" className="underline text-blue-600">
+            Networking
+          </Link>{' '}
+          |{' '}
+          <Link href="/scan/demo-x" className="underline text-blue-600">
+            Demo X
           </Link>
         </div>
 
@@ -108,7 +136,9 @@ export default function HomePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyUp={(e) => {
-              if (e.key === 'Enter') fetchAttendees();
+              if (e.key === 'Enter') {
+                fetchAttendees();
+              }
             }}
           />
           <div className={styles.iconWrapper}>
@@ -154,7 +184,7 @@ export default function HomePage() {
                   className={styles.arrowButton}
                   aria-label="Ver detalle"
                 >
-                  {/* Icono flecha → */}
+                  {/* Flecha → */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width={20}
@@ -177,7 +207,7 @@ export default function HomePage() {
         </ul>
       </main>
 
-      {/* Modal de escaneo */}
+      {/* Modal de escaneo principal */}
       {isScanning && (
         <ScanModal
           eventName="Nombre del Evento"
