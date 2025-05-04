@@ -309,3 +309,17 @@
   color: #111827;
   cursor: pointer;
 }
+.itemLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: inherit;
+  transition: opacity 0.2s;
+  width: 100%;
+}
+.itemLink:hover,
+.itemLink:active {
+  opacity: 0.6;
+}

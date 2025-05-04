@@ -3,8 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
 import dynamic                  from 'next/dynamic';
+import Link from 'next/link';
 import styles                   from '../../styles/Home.module.css';
 import type { GetServerSideProps } from 'next';
+
 
 const ScanModal = dynamic(
   () => import('../../components/ScanModal').then((mod) => mod.ScanModal),
@@ -115,33 +117,48 @@ export default function SubEventListPage() {
         </div>
 
         {/* LISTADO */}
-        <ul className={styles.list}>
-          {attendees.length === 0 ? (
-            <li className={styles.noAttendees}>
-              No hay asistentes registrados.
-            </li>
-          ) : (
-            attendees.map((a) => (
-              <li key={a.id} className={styles.item}>
-                <div className={styles.itemInfo}>
-                  <span
-                    className={`${styles.dot} ${
-                      a.checked_in ? styles.checked : styles.unchecked
-                    }`}
-                  />
-                  <span className={styles.name}>{a.name}</span>
-                </div>
-                <button
-                  onClick={() => router.push(`/${subevent}/attendees/${a.id}`)}
-                  className={styles.arrowButton}
-                  aria-label="Ver detalle"
-                >
-                  →
-                </button>
-              </li>
-            ))
-          )}
-        </ul>
+
+<ul className={styles.list}>
+  {attendees.length === 0 ? (
+    <li className={styles.noAttendees}>
+      No hay asistentes registrados.
+    </li>
+  ) : (
+    attendees.map((a) => (
+      <li key={a.id} className={styles.item}>
+        <Link
+          href={`/${subevent}/attendees/${a.id}`}
+          className={styles.itemLink}
+        >
+          <div className={styles.itemInfo}>
+            <span
+              className={`${styles.dot} ${
+                a.checked_in ? styles.checked : styles.unchecked
+              }`}
+            />
+            <span className={styles.name}>{a.name}</span>
+          </div>
+          <div className={styles.arrowIcon}><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width={20}
+                    height={20}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5l7 7-7 7"
+                    />
+                  </svg></div>
+        </Link>
+      </li>
+    ))
+  )}
+</ul>
+
       </main>
 
       {/* MODAL DE ESCANEO */}

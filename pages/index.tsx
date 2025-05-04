@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
 import dynamic                  from 'next/dynamic';
-import Link                     from 'next/link';
 import styles                   from '../styles/Home.module.css';
 
 // ScanModal cargado sin SSR
