@@ -1,23 +1,16 @@
-// pages/[subevent]/attendees/[id].tsx
-
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
-import styles from '../../../styles/Detail.module.css';
-
-
+import styles                   from '../../../styles/Detail.module.css';
 
 interface Attendee {
-  id: string;
-  name: string;
-  email: string;
-  phone: string;
-  role: string;
-  checked_in: boolean;
+  id: string; name: string;
+  email: string; phone: string;
+  role: string; checked_in: boolean;
   created_at: string;
 }
 
 type CheckinsGrouped = Record<
-  'main' | 'charla-a' | 'taller-b' | 'networking' | 'demo-x',
+  'main'|'charla-a'|'taller-b'|'networking'|'demo-x',
   string[]
 >;
 
@@ -30,8 +23,8 @@ export default function SubEventAttendeeDetail() {
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string|null>(null);
 
-  const [btnLoading, setBtnLoading]   = useState(false);
-  const [checkedIn, setCheckedIn]     = useState(false);
+  const [checkedIn, setCheckedIn]   = useState(false);
+  const [btnLoading, setBtnLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -39,7 +32,8 @@ export default function SubEventAttendeeDetail() {
       try {
         const res = await fetch(`/api/attendees/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(await res.text());
-        const json: { attendee: Attendee; checkins: CheckinsGrouped } = await res.json();
+        const json: { attendee: Attendee; checkins: CheckinsGrouped } =
+          await res.json();
         setAttendee(json.attendee);
         setCheckins(json.checkins);
         setCheckedIn(json.attendee.checked_in);
@@ -61,14 +55,13 @@ export default function SubEventAttendeeDetail() {
         ? { id: attendee.id }
         : { id: attendee.id, subevent };
       const res = await fetch(endpoint, {
-        method:'POST',
-        headers:{ 'Content-Type': 'application/json' },
-        body:JSON.stringify(body),
+        method: 'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());
       setCheckedIn(!checkedIn);
-    } catch (e) {
-      console.error(e);
+    } catch {
       alert('Error cambiando estado');
     } finally {
       setBtnLoading(false);
@@ -80,28 +73,32 @@ export default function SubEventAttendeeDetail() {
   if (!attendee || !checkins) return <p className={styles.error}>No encontrado.</p>;
 
   const labels: Record<string,string> = {
-    main:        'Entrada Principal',
-    'charla-a':  'Charla A',
-    'taller-b':  'Taller B',
-    networking:  'Networking',
-    'demo-x':    'Demo X',
+    main:'Entrada Principal','charla-a':'Charla A',
+    'taller-b':'Taller B','networking':'Networking','demo-x':'Demo X'
   };
 
   return (
     <div className={styles.container}>
+      {/* HEADER: Back + título + scan */}
       <header className={styles.header}>
         <button
-          onClick={() => router.back()}
+          onClick={()=>router.back()}
           className={styles.backButton}
           aria-label="Volver"
         >←</button>
         <h1 className={styles.eventTitle}>{labels[subevent]}</h1>
         <button
-          onClick={() => setBtnLoading(false) /* opcional: re-escanea */}
+          onClick={()=>setBtnLoading(false)}
           className={styles.scanButton}
-        >✕</button>
+          aria-label="Escanear de nuevo"
+        >
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" />
+          </svg>
+        </button>
       </header>
 
+      {/* PERFIL */}
       <section className={styles.profileSection}>
         <h2 className={styles.name}>{attendee.name}</h2>
         <span className={checkedIn?styles.badgeChecked:styles.badgeNotChecked}>
@@ -109,8 +106,8 @@ export default function SubEventAttendeeDetail() {
         </span>
       </section>
 
+      {/* INFO BÁSICA */}
       <section className={styles.infoSection}>
-        {/* igual que antes */}
         <p><strong>Ticket Title</strong><br/>Nombre del evento</p>
         <p><strong>Order Date</strong><br/>{new Date(attendee.created_at).toLocaleDateString()}</p>
         <p><strong>Rol</strong><br/>{attendee.role}</p>
@@ -118,11 +115,12 @@ export default function SubEventAttendeeDetail() {
         <p><strong>Teléfono</strong><br/>{attendee.phone}</p>
       </section>
 
-      <hr className={styles.divider}/>
+      <hr className={styles.divider} />
 
+      {/* HISTORIAL */}
       <section className={styles.checksSection}>
         <h3 className={styles.sectionTitle}>Historial de Entradas</h3>
-        {(Object.keys(checkins) as (keyof CheckinsGrouped)[]).map(sub => {
+        {(Object.keys(checkins) as (keyof CheckinsGrouped)[]).map(sub=>{
           const times = checkins[sub];
           return (
             <div key={sub} className={styles.checkBlock}>
@@ -140,12 +138,13 @@ export default function SubEventAttendeeDetail() {
         })}
       </section>
 
+      {/* BOTÓN TOGGLE */}
       <button
         onClick={toggleCheck}
         disabled={btnLoading}
         className={checkedIn?styles.checkoutButton:styles.checkinButton}
       >
-        {btnLoading? 'Procesando…' : (checkedIn? 'Check-Out' : 'Check-In')}
+        {btnLoading?'Procesando…': checkedIn?'Check-Out':'Check-In'}
       </button>
     </div>
   );
