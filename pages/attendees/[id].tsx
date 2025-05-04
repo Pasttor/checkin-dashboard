@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
-import styles                   from '../../styles/Detail.module.css'; // nuevo módulo
+import styles                   from '../../styles/Detail.module.css';
 
 interface Attendee {
   id: string;
@@ -23,10 +23,14 @@ export default function AttendeeDetailPage() {
   const router = useRouter();
   const { id } = router.query as { id: string };
 
-  const [attendee, setAttendee]   = useState<Attendee | null>(null);
-  const [checkins, setCheckins]   = useState<CheckinsGrouped | null>(null);
-  const [loading, setLoading]     = useState(true);
-  const [error, setError]         = useState<string | null>(null);
+  const [attendee, setAttendee]       = useState<Attendee | null>(null);
+  const [checkins, setCheckins]       = useState<CheckinsGrouped | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [error, setError]             = useState<string | null>(null);
+
+  // Estado para badge y botón
+  const [checkedIn, setCheckedIn]     = useState<boolean>(false);
+  const [btnLoading, setBtnLoading]   = useState<boolean>(false);
 
   useEffect(() => {
     if (!id) return;
@@ -34,9 +38,10 @@ export default function AttendeeDetailPage() {
       try {
         const res = await fetch(`/api/attendees/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(await res.text());
-        const { attendee, checkins } = await res.json();
-        setAttendee(attendee);
-        setCheckins(checkins);
+        const json: { attendee: Attendee; checkins: CheckinsGrouped } = await res.json();
+        setAttendee(json.attendee);
+        setCheckins(json.checkins);
+        setCheckedIn(json.attendee.checked_in);
       } catch (e: any) {
         setError(e.message);
       } finally {
@@ -45,6 +50,30 @@ export default function AttendeeDetailPage() {
     }
     load();
   }, [id]);
+
+  // Handler de toggle check-in / check-out
+  const toggleCheck = async () => {
+    if (!attendee) return;
+    setBtnLoading(true);
+    try {
+      const endpoint = checkedIn ? '/api/checkout' : '/api/checkin';
+      const body = checkedIn
+        ? { id: attendee.id }
+        : { id: attendee.id, subevent: 'main' };
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      setCheckedIn(!checkedIn);
+    } catch (e) {
+      console.error(e);
+      alert('Error al cambiar estado');
+    } finally {
+      setBtnLoading(false);
+    }
+  };
 
   if (loading) return <p className={styles.loading}>Cargando…</p>;
   if (error)   return <p className={styles.error}>Error: {error}</p>;
@@ -68,12 +97,13 @@ export default function AttendeeDetailPage() {
           className={styles.backButton}
           aria-label="Volver"
         >
-          {/* SVG simple flecha */}
           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M15 18l-6-6 6-6" />
           </svg>
         </button>
+
         <h1 className={styles.eventTitle}>Nombre del Evento</h1>
+
         <button
           type="button"
           onClick={() => router.push(`/scan/main?returnTo=/attendees/${id}`)}
@@ -86,21 +116,19 @@ export default function AttendeeDetailPage() {
         </button>
       </header>
 
-      {/* NOMBRE + BADGE */}
+      {/* PERFIL */}
       <section className={styles.profileSection}>
         <h2 className={styles.name}>{attendee.name}</h2>
         <span
           className={
-            attendee.checked_in
-              ? styles.badgeChecked
-              : styles.badgeNotChecked
+            checkedIn ? styles.badgeChecked : styles.badgeNotChecked
           }
         >
-          {attendee.checked_in ? 'Checked-in' : 'Not Checked-in'}
+          {checkedIn ? 'Checked-in' : 'Not Checked-in'}
         </span>
       </section>
 
-      {/* INFO BÁSICA */}
+      {/* INFORMACIÓN BÁSICA */}
       <section className={styles.infoSection}>
         <p>
           <strong>Ticket Title</strong><br/>
@@ -135,21 +163,23 @@ export default function AttendeeDetailPage() {
       <section className={styles.checksSection}>
         <h3 className={styles.sectionTitle}>Historial de Entradas</h3>
 
-        { (Object.keys(checkins) as (keyof CheckinsGrouped)[]).map((sub) => {
+        {(Object.keys(checkins) as (keyof CheckinsGrouped)[]).map((sub) => {
           const times = checkins[sub];
           return (
             <div key={sub} className={styles.checkBlock}>
               <div className={styles.checkHeader}>
-                <span className={styles.checkTitle}>{labels[sub]}</span>
-                <span className={styles.checkCount}>{times.length}</span>
+                <span className={styles.checkTitle}>
+                  {labels[sub]}: {times.length}
+                </span>
               </div>
               <ul className={styles.checkList}>
-                {times.map((ts) => (
-                  <li key={ts}>
-                    {new Date(ts).toLocaleString()}
-                  </li>
-                ))}
-                {times.length === 0 && (
+                {times.length > 0 ? (
+                  times.map((ts) => (
+                    <li key={ts}>
+                      {new Date(ts).toLocaleString()}
+                    </li>
+                  ))
+                ) : (
                   <li className={styles.noHistory}>Sin registros</li>
                 )}
               </ul>
@@ -158,15 +188,20 @@ export default function AttendeeDetailPage() {
         })}
       </section>
 
-      {/* BOTÓN DE CHECK-IN */}
+      {/* BOTÓN DE CHECK-IN / CHECK-OUT */}
       <button
         type="button"
-        onClick={() => {
-          /* mismo handler que antes, o tirar POST /api/checkin con subevent="main" */
-        }}
-        className={styles.checkinButton}
+        onClick={toggleCheck}
+        disabled={btnLoading}
+        className={
+          checkedIn ? styles.checkoutButton : styles.checkinButton
+        }
       >
-        Check-In
+        {btnLoading
+          ? 'Procesando…'
+          : checkedIn
+          ? 'Check-Out'
+          : 'Check-In'}
       </button>
     </div>
   );

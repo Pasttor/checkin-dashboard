@@ -99,7 +99,7 @@
   }
   .checkHeader {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;;
     align-items: center;
     margin-bottom: 4px;
   }
@@ -112,6 +112,7 @@
     font-size: 14px;
     font-weight: 700;
     color: #374151;
+    padding: 0.5%;
   }
   .checkList {
     list-style: none;
@@ -151,5 +152,37 @@
     padding: 16px;
     text-align: center;
     color: #6b7280;
+  }
+  /* …resto de estilos… */
+
+/* Botones */
+.checkinButton {
+    margin: 24px 16px;
+    padding: 12px;
+    background: #2563eb;  /* azul */
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    width: calc(100% - 32px);
+  }
+  .checkoutButton {
+    margin: 24px 16px;
+    padding: 12px;
+    background: white;
+    color: #111827;
+    font-size: 16px;
+    font-weight: 600;
+    border: 2px solid #111827;
+    border-radius: 9999px;
+    cursor: pointer;
+    width: calc(100% - 32px);
+  }
+  .checkinButton:disabled,
+  .checkoutButton:disabled {
+    opacity: 0.5;
+    cursor: default;
   }
   
