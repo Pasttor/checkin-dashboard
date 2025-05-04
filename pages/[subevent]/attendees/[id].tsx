@@ -6,6 +6,7 @@ import dynamic                  from 'next/dynamic';
 import styles                   from '../../../styles/Detail.module.css';
 import type { GetServerSideProps } from 'next';
 
+// Cargamos ScanModal sin SSR
 const ScanModal = dynamic(
   () => import('../../../components/ScanModal').then((m) => m.ScanModal),
   { ssr: false }
@@ -39,13 +40,20 @@ export default function SubEventAttendeeDetail() {
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string|null>(null);
 
-  // Estado del botón toggle
+  // Estado toggle y escáner
   const [checkedIn, setCheckedIn]   = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
-
-  // Estado para el modal de escaneo
   const [isScanning, setIsScanning] = useState(false);
   const [hasScanned, setHasScanned] = useState(false);
+
+  // Labels legibles
+  const labels: Record<string,string> = {
+    main:        'Main Check',
+    'charla-a':  'Charla A',
+    'taller-b':  'Taller B',
+    networking:  'Networking',
+    'demo-x':    'Demo X',
+  };
 
   // Carga datos al montar
   useEffect(() => {
@@ -54,7 +62,8 @@ export default function SubEventAttendeeDetail() {
       try {
         const res = await fetch(`/api/attendees/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(await res.text());
-        const json: { attendee: Attendee; checkins: CheckinsGrouped } = await res.json();
+        const json: { attendee: Attendee; checkins: CheckinsGrouped } =
+          await res.json();
         setAttendee(json.attendee);
         setCheckins(json.checkins);
         setCheckedIn(json.attendee.checked_in);
@@ -67,7 +76,7 @@ export default function SubEventAttendeeDetail() {
     load();
   }, [id]);
 
-  // Reset flag al abrir el modal
+  // Reset flag al abrir modal
   useEffect(() => {
     if (isScanning) setHasScanned(false);
   }, [isScanning]);
@@ -88,25 +97,21 @@ export default function SubEventAttendeeDetail() {
       });
       if (!res.ok) throw new Error(await res.text());
       setCheckedIn(!checkedIn);
-    } catch (e) {
-      console.error(e);
+    } catch {
       alert('Error cambiando estado');
     } finally {
       setBtnLoading(false);
     }
   };
 
-  // Handler para el escaneo dentro del detail
+  // Handler de escaneo
   const handleScan = async (code: string) => {
     if (hasScanned) return;
     setHasScanned(true);
-
     const scannedId = code.split('/').pop()!;
-    // Reutilizamos el mismo toggle API, si es el mismo asistente...
     if (scannedId === id) {
       await toggleCheck();
     } else {
-      // Si escanean otro QR, van al detalle de ese asistente
       router.push(`/${subevent}/attendees/${scannedId}`);
     }
     setIsScanning(false);
@@ -116,17 +121,9 @@ export default function SubEventAttendeeDetail() {
   if (error)   return <p className={styles.error}>Error: {error}</p>;
   if (!attendee || !checkins) return <p className={styles.error}>No encontrado.</p>;
 
-  const labels: Record<string,string> = {
-    main:        'Entrada Principal',
-    'charla-a':  'Charla A',
-    'taller-b':  'Taller B',
-    networking:  'Networking',
-    'demo-x':    'Demo X',
-  };
-
   return (
     <div className={styles.container}>
-      {/* HEADER: back + título + scan */}
+      {/* HEADER: back + dropdown + scan */}
       <header className={styles.header}>
         <button
           onClick={() => router.back()}
@@ -135,7 +132,23 @@ export default function SubEventAttendeeDetail() {
         >
           ←
         </button>
-        <h1 className={styles.eventTitle}>{labels[subevent]}</h1>
+
+        <select
+          className={styles.dropdown}
+          value={subevent}
+          onChange={(e) => {
+            const v = e.target.value;
+            // ir al listado de ese subevento
+            router.push(v === 'main' ? '/' : `/${v}`);
+          }}
+        >
+          <option value="main">Main Check</option>
+          <option value="charla-a">Charla A</option>
+          <option value="taller-b">Taller B</option>
+          <option value="networking">Networking</option>
+          <option value="demo-x">Demo X</option>
+        </select>
+
         <button
           onClick={() => setIsScanning(true)}
           className={styles.scanButton}
@@ -158,10 +171,7 @@ export default function SubEventAttendeeDetail() {
       {/* INFO BÁSICA */}
       <section className={styles.infoSection}>
         <p><strong>Ticket Title</strong><br/>Nombre del evento</p>
-        <p>
-          <strong>Order Date</strong><br/>
-          {new Date(attendee.created_at).toLocaleDateString()}
-        </p>
+        <p><strong>Order Date</strong><br/>{new Date(attendee.created_at).toLocaleDateString()}</p>
         <p><strong>Rol</strong><br/>{attendee.role}</p>
         <p><strong>Email</strong><br/>{attendee.email}</p>
         <p><strong>Teléfono</strong><br/>{attendee.phone}</p>
@@ -191,7 +201,7 @@ export default function SubEventAttendeeDetail() {
       </section>
 
       {/* BOTÓN TOGGLE */}
-      {/* <button
+      <button
         onClick={toggleCheck}
         disabled={btnLoading}
         className={checkedIn ? styles.checkoutButton : styles.checkinButton}
@@ -199,7 +209,7 @@ export default function SubEventAttendeeDetail() {
         {btnLoading
           ? 'Procesando…'
           : checkedIn ? 'Check-Out' : 'Check-In'}
-      </button> */}
+      </button>
 
       {/* MODAL DE ESCANEO */}
       {isScanning && (
@@ -213,5 +223,5 @@ export default function SubEventAttendeeDetail() {
   );
 }
 
-// Desactivar SSG
+// Desactivamos SSG
 export const getServerSideProps: GetServerSideProps = async () => ({ props: {} });

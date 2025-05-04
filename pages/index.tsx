@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
-import Link                     from 'next/link';
 import dynamic                  from 'next/dynamic';
+import Link                     from 'next/link';
 import styles                   from '../styles/Home.module.css';
 
 // ScanModal cargado sin SSR
@@ -22,8 +22,11 @@ export default function HomePage() {
   const router = useRouter();
 
   // Lista de asistentes + búsqueda
-  const [attendees, setAttendees] = useState<Attendee[]>([]);
-  const [search, setSearch]       = useState<string>('');
+  const [attendees, setAttendees]     = useState<Attendee[]>([]);
+  const [search, setSearch]           = useState<string>('');
+  // Estados para el escáner principal
+  const [isScanning, setIsScanning]       = useState<boolean>(false);
+  const [hasScannedMain, setHasScannedMain] = useState<boolean>(false);
 
   // Función para obtener asistentes
   const fetchAttendees = async () => {
@@ -40,13 +43,8 @@ export default function HomePage() {
 
   // Llamamos a fetchAttendees una vez al montar
   useEffect(() => {
-    // evitar retornar Promise en el callback
     fetchAttendees();
   }, []);
-
-  // Estados para el escáner principal
-  const [isScanning, setIsScanning]       = useState<boolean>(false);
-  const [hasScannedMain, setHasScannedMain] = useState<boolean>(false);
 
   // Reset del flag cuando abrimos el modal
   useEffect(() => {
@@ -82,7 +80,22 @@ export default function HomePage() {
       <main className={styles.container}>
         {/* Header */}
         <header className={styles.header}>
-          <h1 className={styles.title}>Nombre del Evento</h1>
+          {/* Dropdown para seleccionar subevento */}
+          <select
+            className={styles.dropdown}
+            value="main"
+            onChange={e => {
+              const v = e.target.value;
+              router.push(v === 'main' ? '/' : `/${v}`);
+            }}
+          >
+            <option value="main">Main Check</option>
+            <option value="charla-a">Charla A</option>
+            <option value="taller-b">Taller B</option>
+            <option value="networking">Networking</option>
+            <option value="demo-x">Demo X</option>
+          </select>
+
           <button
             type="button"
             onClick={() => setIsScanning(true)}
@@ -184,7 +197,6 @@ export default function HomePage() {
                   className={styles.arrowButton}
                   aria-label="Ver detalle"
                 >
-                  {/* Flecha → */}
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width={20}

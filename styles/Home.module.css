@@ -294,3 +294,12 @@
   font-style: italic;
   color: #9ca3af;
 }
+/* styles/Home.module.css */
+.dropdown {
+  background: none;
+  border: none;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  cursor: pointer;
+}

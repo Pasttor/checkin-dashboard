@@ -26,12 +26,10 @@ export default function SubEventListPage() {
   const [isScanning, setIsScanning] = useState(false);
   const [hasScanned, setHasScanned] = useState(false);
 
-  // Función para buscar asistentes
+  // Carga inicial de asistentes
   const fetchAttendees = async () => {
     try {
-      const res  = await fetch(
-        `/api/attendees?search=${encodeURIComponent(search)}`
-      );
+      const res  = await fetch(`/api/attendees?search=${encodeURIComponent(search)}`);
       const json = await res.json();
       setAttendees(json.attendees || []);
     } catch (err) {
@@ -39,16 +37,16 @@ export default function SubEventListPage() {
     }
   };
 
-  // Llamamos a fetchAttendees en mount (síncrono)
   useEffect(() => {
     fetchAttendees();
   }, []);
 
-  // Resetea la flag al abrir el modal
+  // Reset flag al abrir el modal
   useEffect(() => {
     if (isScanning) setHasScanned(false);
   }, [isScanning]);
 
+  // Manejo de escaneo
   const handleScan = async (code: string) => {
     if (hasScanned || !subevent) return;
     setHasScanned(true);
@@ -64,26 +62,36 @@ export default function SubEventListPage() {
     router.push(`/${subevent}/attendees/${id}`);
   };
 
+  // Navegación del dropdown
+  const onSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value;
+    if (v === 'main') router.push('/');
+    else router.push(`/${v}`);
+  };
+
   return (
     <>
       <main className={styles.container}>
-        {/* HEADER: sólo título + botón escanear */}
+        {/* HEADER: dropdown + botón escanear */}
         <header className={styles.header}>
-          <h1 className={styles.title}>
-            {subevent?.replace(/-/g, ' ').toUpperCase() || 'Cargando…'}
-          </h1>
+          <select
+            className={styles.dropdown}
+            value={subevent}
+            onChange={onSelectChange}
+          >
+            <option value="main">Main Check</option>
+            <option value="charla-a">Charla A</option>
+            <option value="taller-b">Taller B</option>
+            <option value="networking">Networking</option>
+            <option value="demo-x">Demo X</option>
+          </select>
+
           <button
             onClick={() => setIsScanning(true)}
             className={styles.scanButton}
-            aria-label="Escanear"
+            aria-label="Escanear QR"
           >
-            <svg
-              width="24"
-              height="24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
+            <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" />
             </svg>
           </button>
@@ -100,14 +108,8 @@ export default function SubEventListPage() {
             onKeyUp={(e) => e.key === 'Enter' && fetchAttendees()}
           />
           <div className={styles.iconWrapper}>
-            <svg
-              width="20"
-              height="20"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            >
-              <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z" />
+            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/>
             </svg>
           </div>
         </div>
@@ -130,9 +132,7 @@ export default function SubEventListPage() {
                   <span className={styles.name}>{a.name}</span>
                 </div>
                 <button
-                  onClick={() =>
-                    router.push(`/${subevent}/attendees/${a.id}`)
-                  }
+                  onClick={() => router.push(`/${subevent}/attendees/${a.id}`)}
                   className={styles.arrowButton}
                   aria-label="Ver detalle"
                 >
@@ -144,6 +144,7 @@ export default function SubEventListPage() {
         </ul>
       </main>
 
+      {/* MODAL DE ESCANEO */}
       {isScanning && (
         <ScanModal
           eventName={subevent.replace(/-/g, ' ').toUpperCase()}

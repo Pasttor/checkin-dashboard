@@ -185,4 +185,13 @@
     opacity: 0.5;
     cursor: default;
   }
-  
+/* styles/Detail.module.css */
+.dropdown {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #111827;
+    cursor: pointer;
+  }
+    
