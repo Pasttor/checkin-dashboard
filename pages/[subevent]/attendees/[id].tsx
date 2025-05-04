@@ -1,11 +1,23 @@
+// pages/[subevent]/attendees/[id].tsx
+
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
+import dynamic                  from 'next/dynamic';
 import styles                   from '../../../styles/Detail.module.css';
+import type { GetServerSideProps } from 'next';
+
+const ScanModal = dynamic(
+  () => import('../../../components/ScanModal').then((m) => m.ScanModal),
+  { ssr: false }
+);
 
 interface Attendee {
-  id: string; name: string;
-  email: string; phone: string;
-  role: string; checked_in: boolean;
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: string;
+  checked_in: boolean;
   created_at: string;
 }
 
@@ -16,28 +28,37 @@ type CheckinsGrouped = Record<
 
 export default function SubEventAttendeeDetail() {
   const router = useRouter();
-  const { subevent, id } = router.query as { subevent: string; id: string };
+  const { subevent, id } = router.query as {
+    subevent: string;
+    id: string;
+  };
 
+  // Datos del asistente
   const [attendee, setAttendee] = useState<Attendee|null>(null);
   const [checkins, setCheckins] = useState<CheckinsGrouped|null>(null);
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState<string|null>(null);
 
+  // Estado del botón toggle
   const [checkedIn, setCheckedIn]   = useState(false);
   const [btnLoading, setBtnLoading] = useState(false);
 
+  // Estado para el modal de escaneo
+  const [isScanning, setIsScanning] = useState(false);
+  const [hasScanned, setHasScanned] = useState(false);
+
+  // Carga datos al montar
   useEffect(() => {
     if (!id) return;
     async function load() {
       try {
         const res = await fetch(`/api/attendees/${encodeURIComponent(id)}`);
         if (!res.ok) throw new Error(await res.text());
-        const json: { attendee: Attendee; checkins: CheckinsGrouped } =
-          await res.json();
+        const json: { attendee: Attendee; checkins: CheckinsGrouped } = await res.json();
         setAttendee(json.attendee);
         setCheckins(json.checkins);
         setCheckedIn(json.attendee.checked_in);
-      } catch (e:any) {
+      } catch (e: any) {
         setError(e.message);
       } finally {
         setLoading(false);
@@ -46,6 +67,12 @@ export default function SubEventAttendeeDetail() {
     load();
   }, [id]);
 
+  // Reset flag al abrir el modal
+  useEffect(() => {
+    if (isScanning) setHasScanned(false);
+  }, [isScanning]);
+
+  // Toggle check-in / check-out
   const toggleCheck = async () => {
     if (!attendee) return;
     setBtnLoading(true);
@@ -55,17 +82,34 @@ export default function SubEventAttendeeDetail() {
         ? { id: attendee.id }
         : { id: attendee.id, subevent };
       const res = await fetch(endpoint, {
-        method: 'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(body),
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(body),
       });
       if (!res.ok) throw new Error(await res.text());
       setCheckedIn(!checkedIn);
-    } catch {
+    } catch (e) {
+      console.error(e);
       alert('Error cambiando estado');
     } finally {
       setBtnLoading(false);
     }
+  };
+
+  // Handler para el escaneo dentro del detail
+  const handleScan = async (code: string) => {
+    if (hasScanned) return;
+    setHasScanned(true);
+
+    const scannedId = code.split('/').pop()!;
+    // Reutilizamos el mismo toggle API, si es el mismo asistente...
+    if (scannedId === id) {
+      await toggleCheck();
+    } else {
+      // Si escanean otro QR, van al detalle de ese asistente
+      router.push(`/${subevent}/attendees/${scannedId}`);
+    }
+    setIsScanning(false);
   };
 
   if (loading) return <p className={styles.loading}>Cargando…</p>;
@@ -73,24 +117,29 @@ export default function SubEventAttendeeDetail() {
   if (!attendee || !checkins) return <p className={styles.error}>No encontrado.</p>;
 
   const labels: Record<string,string> = {
-    main:'Entrada Principal','charla-a':'Charla A',
-    'taller-b':'Taller B','networking':'Networking','demo-x':'Demo X'
+    main:        'Entrada Principal',
+    'charla-a':  'Charla A',
+    'taller-b':  'Taller B',
+    networking:  'Networking',
+    'demo-x':    'Demo X',
   };
 
   return (
     <div className={styles.container}>
-      {/* HEADER: Back + título + scan */}
+      {/* HEADER: back + título + scan */}
       <header className={styles.header}>
         <button
-          onClick={()=>router.back()}
+          onClick={() => router.back()}
           className={styles.backButton}
           aria-label="Volver"
-        >←</button>
+        >
+          ←
+        </button>
         <h1 className={styles.eventTitle}>{labels[subevent]}</h1>
         <button
-          onClick={()=>setBtnLoading(false)}
+          onClick={() => setIsScanning(true)}
           className={styles.scanButton}
-          aria-label="Escanear de nuevo"
+          aria-label="Escanear"
         >
           <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M4 7V4h3M17 4h3v3M4 17v3h3M17 20h3v-3" />
@@ -101,15 +150,18 @@ export default function SubEventAttendeeDetail() {
       {/* PERFIL */}
       <section className={styles.profileSection}>
         <h2 className={styles.name}>{attendee.name}</h2>
-        <span className={checkedIn?styles.badgeChecked:styles.badgeNotChecked}>
-          {checkedIn?'Checked-in':'Not Checked-in'}
+        <span className={checkedIn ? styles.badgeChecked : styles.badgeNotChecked}>
+          {checkedIn ? 'Checked-in' : 'Not Checked-in'}
         </span>
       </section>
 
       {/* INFO BÁSICA */}
       <section className={styles.infoSection}>
         <p><strong>Ticket Title</strong><br/>Nombre del evento</p>
-        <p><strong>Order Date</strong><br/>{new Date(attendee.created_at).toLocaleDateString()}</p>
+        <p>
+          <strong>Order Date</strong><br/>
+          {new Date(attendee.created_at).toLocaleDateString()}
+        </p>
         <p><strong>Rol</strong><br/>{attendee.role}</p>
         <p><strong>Email</strong><br/>{attendee.email}</p>
         <p><strong>Teléfono</strong><br/>{attendee.phone}</p>
@@ -120,7 +172,7 @@ export default function SubEventAttendeeDetail() {
       {/* HISTORIAL */}
       <section className={styles.checksSection}>
         <h3 className={styles.sectionTitle}>Historial de Entradas</h3>
-        {(Object.keys(checkins) as (keyof CheckinsGrouped)[]).map(sub=>{
+        {(Object.keys(checkins) as (keyof CheckinsGrouped)[]).map((sub) => {
           const times = checkins[sub];
           return (
             <div key={sub} className={styles.checkBlock}>
@@ -128,8 +180,8 @@ export default function SubEventAttendeeDetail() {
                 {labels[sub]}: {times.length}
               </span>
               <ul className={styles.checkList}>
-                {times.length>0
-                  ? times.map(ts=> <li key={ts}>{new Date(ts).toLocaleString()}</li>)
+                {times.length > 0
+                  ? times.map((ts) => <li key={ts}>{new Date(ts).toLocaleString()}</li>)
                   : <li className={styles.noHistory}>Sin registros</li>
                 }
               </ul>
@@ -142,10 +194,24 @@ export default function SubEventAttendeeDetail() {
       <button
         onClick={toggleCheck}
         disabled={btnLoading}
-        className={checkedIn?styles.checkoutButton:styles.checkinButton}
+        className={checkedIn ? styles.checkoutButton : styles.checkinButton}
       >
-        {btnLoading?'Procesando…': checkedIn?'Check-Out':'Check-In'}
+        {btnLoading
+          ? 'Procesando…'
+          : checkedIn ? 'Check-Out' : 'Check-In'}
       </button>
+
+      {/* MODAL DE ESCANEO */}
+      {isScanning && (
+        <ScanModal
+          eventName={labels[subevent]}
+          onClose={() => setIsScanning(false)}
+          onScan={handleScan}
+        />
+      )}
     </div>
   );
 }
+
+// Desactivar SSG
+export const getServerSideProps: GetServerSideProps = async () => ({ props: {} });
