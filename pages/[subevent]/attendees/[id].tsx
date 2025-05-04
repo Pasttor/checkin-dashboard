@@ -130,7 +130,9 @@ export default function SubEventAttendeeDetail() {
           className={styles.backButton}
           aria-label="Volver"
         >
-          ←
+          <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
         </button>
 
         <select

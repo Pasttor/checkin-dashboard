@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter }            from 'next/router';
+import Link                     from 'next/link';
 import dynamic                  from 'next/dynamic';
 import styles                   from '../styles/Home.module.css';
 
@@ -21,8 +22,8 @@ export default function HomePage() {
   const router = useRouter();
 
   // Lista de asistentes + búsqueda
-  const [attendees, setAttendees]     = useState<Attendee[]>([]);
-  const [search, setSearch]           = useState<string>('');
+  const [attendees, setAttendees]       = useState<Attendee[]>([]);
+  const [search, setSearch]             = useState<string>('');
   // Estados para el escáner principal
   const [isScanning, setIsScanning]       = useState<boolean>(false);
   const [hasScannedMain, setHasScannedMain] = useState<boolean>(false);
@@ -77,9 +78,8 @@ export default function HomePage() {
   return (
     <>
       <main className={styles.container}>
-        {/* Header */}
+        {/* HEADER */}
         <header className={styles.header}>
-          {/* Dropdown para seleccionar subevento */}
           <select
             className={styles.dropdown}
             value="main"
@@ -120,9 +120,7 @@ export default function HomePage() {
           </button>
         </header>
 
-
-
-        {/* Búsqueda */}
+        {/* BÚSQUEDA */}
         <div className={styles.searchWrapper}>
           <input
             type="text"
@@ -131,9 +129,7 @@ export default function HomePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onKeyUp={(e) => {
-              if (e.key === 'Enter') {
-                fetchAttendees();
-              }
+              if (e.key === 'Enter') fetchAttendees();
             }}
           />
           <div className={styles.iconWrapper}>
@@ -156,7 +152,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Lista de asistentes */}
+        {/* LISTA DE ASISTENTES */}
         <ul className={styles.list}>
           {attendees.length === 0 ? (
             <li className={styles.noAttendees}>
@@ -165,36 +161,36 @@ export default function HomePage() {
           ) : (
             attendees.map((a) => (
               <li key={a.id} className={styles.item}>
-                <div className={styles.itemInfo}>
-                  <span
-                    className={`${styles.dot} ${
-                      a.checked_in ? styles.checked : styles.unchecked
-                    }`}
-                  />
-                  <span className={styles.name}>{a.name}</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => router.push(`/attendees/${a.id}`)}
-                  className={styles.arrowButton}
-                  aria-label="Ver detalle"
+                <Link
+                  href={`/attendees/${a.id}`}
+                  className={styles.itemLink}
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width={20}
-                    height={20}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
+                  <div className={styles.itemInfo}>
+                    <span
+                      className={`${styles.dot} ${
+                        a.checked_in ? styles.checked : styles.unchecked
+                      }`}
                     />
-                  </svg>
-                </button>
+                    <span className={styles.name}>{a.name}</span>
+                  </div>
+                  <div className={styles.arrowIcon}>
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width={20}
+                      height={20}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </Link>
               </li>
             ))
           )}

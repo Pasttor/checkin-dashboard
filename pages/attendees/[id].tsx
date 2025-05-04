@@ -102,7 +102,7 @@ export default function AttendeeDetailPage() {
           </svg>
         </button>
 
-        <h1 className={styles.eventTitle}>Nombre del Evento</h1>
+        <h1 className={styles.eventTitle}>Main Check</h1>
 
         <button
           type="button"

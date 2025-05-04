@@ -1,4 +1,12 @@
 /* styles/Detail.module.css */
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+.body{
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+
+}
+
 
 .container {
     display: flex;
@@ -29,6 +37,9 @@
   .backButton { left: 12px; }
   .scanButton { right: 12px; }
   .eventTitle {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     font-size: 18px;
     font-weight: 600;
     color: #111827;
@@ -41,12 +52,18 @@
     text-align: left;
   }
   .name {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     font-size: 24px;
     font-weight: 700;
     margin: 0 0 8px;
   }
   .badgeChecked,
   .badgeNotChecked {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     display: inline-block;
     font-size: 14px;
     padding: 4px 12px;
@@ -63,17 +80,28 @@
   
   /* --- INFO --- */
   .infoSection {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     padding: 0 16px 16px;
     color: #374151;
   }
   .infoSection p {
+    font-family: "Lato", sans-serif;
+    font-weight: 400;
+    font-style: normal;
     margin-bottom: 12px;
-    line-height: 1.4;
+    line-height: 0.6;
+    color: #686868;
+    padding-top: 1rem;
   }
   .infoSection strong {
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-style: normal;
     display: block;
     font-size: 14px;
-    color: #6b7280;
+    color: #020202;
     margin-bottom: 4px;
   }
   
@@ -89,6 +117,9 @@
     padding: 16px;
   }
   .sectionTitle {
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-style: normal;
     font-size: 16px;
     font-weight: 600;
     margin: 0 0 12px;
@@ -104,6 +135,9 @@
     margin-bottom: 4px;
   }
   .checkTitle {
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-style: normal;
     font-size: 14px;
     font-weight: 600;
     color: #374151;
@@ -115,6 +149,9 @@
     padding: 0.5%;
   }
   .checkList {
+    font-family: "Lato", sans-serif;
+    font-weight: 600;
+    font-style: normal;
     list-style: none;
     padding-left: 0;
     margin: 0;
