@@ -121,24 +121,7 @@ export default function HomePage() {
           </button>
         </header>
 
-        {/* Enlaces de prueba a subeventos */}
-        <div style={{ padding: '1rem', textAlign: 'center' }}>
-          <Link href="/scan/charla-a" className="underline text-blue-600">
-            Escanear Charla A
-          </Link>{' '}
-          |{' '}
-          <Link href="/scan/taller-b" className="underline text-blue-600">
-            Taller B
-          </Link>{' '}
-          |{' '}
-          <Link href="/scan/networking" className="underline text-blue-600">
-            Networking
-          </Link>{' '}
-          |{' '}
-          <Link href="/scan/demo-x" className="underline text-blue-600">
-            Demo X
-          </Link>
-        </div>
+
 
         {/* Búsqueda */}
         <div className={styles.searchWrapper}>
