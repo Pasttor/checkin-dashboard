@@ -5,6 +5,7 @@ import { useRouter }            from 'next/router';
 import styles from '../../../styles/Detail.module.css';
 
 
+
 interface Attendee {
   id: string;
   name: string;
