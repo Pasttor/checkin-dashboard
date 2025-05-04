@@ -29,6 +29,10 @@
     position: relative;
     padding: 0.5rem 1rem;
     border-bottom: 1px solid #e5e7eb;
+    margin-left: 4vw;
+    margin-right: 4vw;
+    margin-top: 2rem;
+    margin-bottom: 3rem;
   }
   .searchInput {
     width: 100%;
@@ -47,6 +51,8 @@
   .list {
     flex: 1;
     overflow: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
   .item {
     display: flex;
