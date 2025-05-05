@@ -203,7 +203,7 @@ export default function SubEventAttendeeDetail() {
       </section>
 
       {/* BOTÓN TOGGLE */}
-      <button
+      {/* <button
         onClick={toggleCheck}
         disabled={btnLoading}
         className={checkedIn ? styles.checkoutButton : styles.checkinButton}
@@ -211,7 +211,7 @@ export default function SubEventAttendeeDetail() {
         {btnLoading
           ? 'Procesando…'
           : checkedIn ? 'Check-Out' : 'Check-In'}
-      </button>
+      </button> */}
 
       {/* MODAL DE ESCANEO */}
       {isScanning && (
